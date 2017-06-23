@@ -5,7 +5,7 @@ project.ext.set("isRelease", false)
 uploadArchives {
     repositories {
         mavenDeployer {
-            pom.groupId = "com.ohmerhe.flowlayout"
+            pom.groupId = "com.ohmerhe"
             pom.artifactId = "expanableflowlayout"
             if (project.isRelease) {
                 pom.version = version
