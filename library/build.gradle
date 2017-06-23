@@ -32,6 +32,4 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-version="0.0.1"
-project.ext.set("isRelease", false)
 apply from: 'nexus.gradle'

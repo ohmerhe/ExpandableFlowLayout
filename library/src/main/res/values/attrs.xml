@@ -14,6 +14,6 @@
         </attr>
         <attr name="rtl" format="boolean"/>
         <attr name="maxRows" format="integer"/>
-        <attr name="isExpanded" format="boolean"/>
+        <attr name="supportExpand" format="boolean"/>
     </declare-styleable>
 </resources>

@@ -30,6 +30,12 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
     private var mActivePointerId: Int = 0
     private var mInitialMotionX: Float = 0f
     private var mInitialMotionY: Float = 0f
+    var isSupportExpanded = true
+        set(value) {
+            field = value
+            requestLayout()
+            invalidate()
+        }
 
     private val mHorizontalSpacingForRow = ArrayList<Float>()
     private val mHeightForRow = ArrayList<Int>()
@@ -61,7 +67,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
             }
 
             maxRows = a.getInt(R.styleable.ExpandableFlowLayout_maxRows, DEFAULT_MAX_ROWS)
-            mIsExpanded = a.getBoolean(R.styleable.ExpandableFlowLayout_isExpanded, false)
+            isSupportExpanded = a.getBoolean(R.styleable.ExpandableFlowLayout_supportExpand, true)
             mRtl = a.getBoolean(R.styleable.ExpandableFlowLayout_rtl, DEFAULT_RTL)
         } finally {
             a.recycle()
@@ -202,7 +208,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
             }
         }
 
-        if (isNeedExpand) {
+        if (isSupportExpanded && isNeedExpand) {
             val expandHeight = dpToPx(mExpandHeight).toInt()
             measuredHeight += expandHeight
             Log.d("ExpandableFlowLayout", measuredWidth.toString() + " - " + measuredHeight)
@@ -270,7 +276,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (!isNeedExpand) return
+        if (!isSupportExpanded || !isNeedExpand) return
         val res = resources
         val bitmap = BitmapFactory.decodeResource(res, if (mIsExpanded)
             R.drawable.flowlayout_fold
@@ -303,11 +309,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
                 val activePointerId = MotionEventCompat.getPointerId(ev, 0)
                 val x = ev.getX(activePointerId)
                 val y = ev.getY(activePointerId)
-                if (x > 0 && x < width && y > height - dpToPx(mExpandHeight) && y < height) {
-                    return true
-                } else {
-                    return false
-                }
+                return x > 0 && x < width && y > height - dpToPx(mExpandHeight) && y < height
             }
             MotionEvent.ACTION_UP -> {
             }
@@ -323,20 +325,8 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0)
                 mInitialMotionX = ev.getX(mActivePointerId)
                 mInitialMotionY = ev.getY(mActivePointerId)
-                if (mInitialMotionX > 0 && mInitialMotionX < width
-                        && mInitialMotionY > height - dpToPx(mExpandHeight) && mInitialMotionY < height) {
-                    return true
-                } else {
-                    return false
-                }
-                val x = this.getMotionEventX(ev, this.mActivePointerId)
-                val xDiff = Math.abs(x - this.mInitialMotionX)
-                val y = this.getMotionEventY(ev, this.mActivePointerId)
-                val yDiff = Math.abs(y - this.mInitialMotionY)
-                if (xDiff <= 10.0f && yDiff <= 10.0f) {
-                    // 不是移动，触发点击事件
-                    performExpandClick()
-                }
+                return mInitialMotionX > 0 && mInitialMotionX < width
+                        && mInitialMotionY > height - dpToPx(mExpandHeight) && mInitialMotionY < height
             }
             MotionEvent.ACTION_UP -> {
                 val x = this.getMotionEventX(ev, this.mActivePointerId)
@@ -344,6 +334,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
                 val y = this.getMotionEventY(ev, this.mActivePointerId)
                 val yDiff = Math.abs(y - this.mInitialMotionY)
                 if (xDiff <= 10.0f && yDiff <= 10.0f) {
+                    // 不是移动，触发点击事件
                     performExpandClick()
                 }
             }
@@ -364,7 +355,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
         return if (index < 0) -1.0f else MotionEventCompat.getX(ev, index)
     }
 
-    protected fun getMotionEventY(ev: MotionEvent, activePointerId: Int): Float {
+    private fun getMotionEventY(ev: MotionEvent, activePointerId: Int): Float {
         val index = MotionEventCompat.findPointerIndex(ev, activePointerId)
         return if (index < 0) -1.0f else MotionEventCompat.getY(ev, index)
     }
@@ -477,7 +468,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
         return spacing
     }
 
-    protected fun dpToPx(dp: Float): Float {
+    private fun dpToPx(dp: Float): Float {
         return TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics)
     }

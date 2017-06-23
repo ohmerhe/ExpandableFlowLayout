@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:background="#f8f8f8"
         app:maxRows="3"
+        app:supportExpand="true"
         app:childSpacing="auto"
         app:rowSpacing="8dp"/>
 

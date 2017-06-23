@@ -1,5 +1,7 @@
 apply plugin: 'maven'
 
+version="0.1.0"
+project.ext.set("isRelease", false)
 uploadArchives {
     repositories {
         mavenDeployer {
