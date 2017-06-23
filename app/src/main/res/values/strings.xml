@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">ProjectTemplate</string>
+    <string name="app_name">ExpandableFlowLayout</string>
+    <string name="tag0">便签000</string>
+    <string name="tag1">便签001</string>
+    <string name="tag2">便签002</string>
+    <string name="tag3">便签003</string>
+    <string name="tag4">便签004</string>
+    <string name="tag5">便签005</string>
+    <string name="tag6">便签006</string>
+    <string name="tag7">便签007</string>
+    <string name="tag8">便签008</string>
 </resources>

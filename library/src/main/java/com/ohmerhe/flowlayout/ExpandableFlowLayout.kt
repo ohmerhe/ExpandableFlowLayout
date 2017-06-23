@@ -119,8 +119,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
             val childHeight = child.measuredHeight + verticalMargin
             if (allowFlow && rowWidth + childWidth > rowSize) { // Need flow to next row
                 // Save parameters for current row
-                mHorizontalSpacingForRow.add(
-                        getSpacingForRow(childSpacing, rowSize, rowWidth, childNumInRow))
+                mHorizontalSpacingForRow.add(getSpacingForRow(childSpacing, rowSize, rowWidth, childNumInRow))
                 mChildNumForRow.add(childNumInRow)
                 mHeightForRow.add(maxChildHeightInRow)
                 if (mHorizontalSpacingForRow.size <= maxRows || mIsExpanded) {
@@ -165,6 +164,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
         mHeightForRow.add(maxChildHeightInRow)
         if (mHorizontalSpacingForRow.size <= maxRows || mIsExpanded) {
             measuredHeight += maxChildHeightInRow
+            mDisplayChildCount += childNumInRow
         }
         measuredWidth = max(measuredWidth, rowWidth)
 
@@ -275,8 +275,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
         val bitmap = BitmapFactory.decodeResource(res, if (mIsExpanded)
             R.drawable.flowlayout_fold
         else
-            R.drawable
-                    .flowlayout_expand)
+            R.drawable.flowlayout_expand)
         //        Log.d("ExpandableFlowLayout", getMeasuredHeight() - (int) (dpToPx(mExpandHeight)) + " - " + getMeasuredHeight());
         //        Rect r = new Rect(0, getMeasuredHeight() - (int) (dpToPx(mExpandHeight)), getMeasuredWidth(), getMeasuredHeight());
         //        // fill
