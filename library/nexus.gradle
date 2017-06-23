@@ -1,0 +1,25 @@
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.groupId = "com.ohmerhe.flowlayout"
+            pom.artifactId = "expanableflowlayout"
+            if (project.isRelease) {
+                pom.version = version
+                repository(url:nexusReleases) {
+                    authentication(userName:nexusUsername, password:nexusPassword)
+                }
+            } else {
+                pom.version = "${version}-SNAPSHOT"
+                repository(url:nexusSnapshots) {
+                    authentication(userName:nexusUsername, password:nexusPassword)
+                }
+            }
+
+            pom.project {
+                description 'description'
+            }
+        }
+    }
+}
