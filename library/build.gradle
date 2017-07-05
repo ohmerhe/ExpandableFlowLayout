@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion 23
@@ -32,4 +33,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+apply from: 'bintray.gradle'
 apply from: 'nexus.gradle'

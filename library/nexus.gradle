@@ -1,12 +1,12 @@
 apply plugin: 'maven'
 
-version="0.1.0"
+version="$PROJ_VERSION"
 project.ext.set("isRelease", false)
 uploadArchives {
     repositories {
         mavenDeployer {
-            pom.groupId = "com.ohmerhe"
-            pom.artifactId = "expanableflowlayout"
+            pom.groupId = "$PROJ_GROUP"
+            pom.artifactId = "$PROJ_ARTIFACTID"
             if (project.isRelease) {
                 pom.version = version
                 repository(url:nexusReleases) {
