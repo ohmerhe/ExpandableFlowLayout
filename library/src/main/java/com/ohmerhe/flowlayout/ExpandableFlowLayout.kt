@@ -208,7 +208,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
             }
         }
 
-        if (isSupportExpanded && isNeedExpand) {
+        if (isDrawExpandedView) {
             val expandHeight = dpToPx(mExpandHeight).toInt()
             measuredHeight += expandHeight
             Log.d("ExpandableFlowLayout", measuredWidth.toString() + " - " + measuredHeight)
@@ -217,6 +217,9 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
         measuredHeight = if (heightMode == View.MeasureSpec.EXACTLY) heightSize else measuredHeight
         setMeasuredDimension(measuredWidth, measuredHeight)
     }
+
+    private val isDrawExpandedView: Boolean
+        get() = isSupportExpanded && isNeedExpand
 
     private val isNeedExpand: Boolean
         get() = maxRows < mChildNumForRow.size
@@ -276,7 +279,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (!isSupportExpanded || !isNeedExpand) return
+        if (!isDrawExpandedView) return
         val res = resources
         val bitmap = BitmapFactory.decodeResource(res, if (mIsExpanded)
             R.drawable.flowlayout_fold
@@ -304,6 +307,9 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        if (!isDrawExpandedView){
+            return super.onInterceptTouchEvent(ev)
+        }
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
                 val activePointerId = MotionEventCompat.getPointerId(ev, 0)
@@ -320,6 +326,9 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
     }
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {
+        if (!isDrawExpandedView) {
+            return super.onTouchEvent(ev)
+        }
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0)
