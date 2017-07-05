@@ -1,5 +1,5 @@
 
-## ExpanableFlowLayout
+## ExpandableFlowLayout
 
 > 这个库是在 [FlowLayout](https://github.com/nex3z/FlowLayout) 基础上修改的，增加了可扩展功能，所以这个库的所有属性都支持。
 
