@@ -1,7 +1,7 @@
 
 ## ExpandableFlowLayout
 
-> 这个库是在 [FlowLayout](https://github.com/nex3z/FlowLayout) 基础上修改的，增加了可扩展功能，所以这个库的所有属性都支持。
+> 这个库是在 [FlowLayout](https://github.com/nex3z/FlowLayout) 基础上修改的，增加了可扩展功能，所以这个库的所有功能都支持。
 
 [ ![Download](https://api.bintray.com/packages/ohmerhe/maven/ExpanableFlowLayout/images/download.svg) ](https://bintray.com/ohmerhe/maven/ExpanableFlowLayout/_latestVersion)
 
@@ -70,7 +70,7 @@ expandableFlowLayout.addView(subView)
 | childSpacing           | `auto`/dimension             | 子视图水平间距. 支持 `auto` 自动模式，或者是指定的大小。默认是 0dp。                                                     |
 | childSpacingForLastRow | `auto`/`align`/<br>dimension | 最后一行子视图的水平解决. 支持 `auto`、 `align` 或者一个指定大小. 如果不设置的话, 会使用 `childSpacing` 的值。 |
 | rowSpacing             | `auto`/dimension             | 行间距。支持 `auto` 自动模式，或者是指定的大小。默认是 0dp。                                                            |
-| rtl                    | boolean                      | `true` 视图从右至左布局. `false` 从左至右布局. 默认值是 `false`.                                       |
+| hGravity               | enum                      | `center` 视图从右至左布局，`left` 从左至右布局，`center` 居中显示. 默认值是 `left`.                                       |
 | maxRows                | integer                      | 显示行数的最大值，当视图行数超过该值时不显示，或者展开后显示。 默认值是 `Integer.MAX_VALUE`.                                       |
 | supportExpand           | boolean                      | 当视图需要显示行数大于 `maxRows` 时，根据 supportExpand 判断是否通过可展开的方式显示视图，`true` 代表会显示可展开箭头，点击可展开或收起多出的子视图，`false` 代表视图只显示 `maxRows` 限制内行数的视图                           |
 
