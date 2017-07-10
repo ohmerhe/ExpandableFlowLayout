@@ -20,8 +20,9 @@
         android:layout_height="wrap_content"
         android:background="#f8f8f8"
         app:maxRows="3"
+        app:hGravity="left"
         app:supportExpand="true"
-        app:childSpacing="auto"
+        app:childSpacing="8dp"
         app:rowSpacing="8dp"/>
 
     <com.ohmerhe.flowlayout.ExpandableFlowLayout
@@ -30,6 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:background="#f8f8f8"
+        app:hGravity="center"
         app:childSpacing="auto"
         app:childSpacingForLastRow="align"
         app:rowSpacing="8dp">

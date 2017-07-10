@@ -22,7 +22,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
     private var mChildSpacingForLastRow = DEFAULT_CHILD_SPACING_FOR_LAST_ROW
     private var mRowSpacing = DEFAULT_ROW_SPACING
     private var mAdjustedRowSpacing = DEFAULT_ROW_SPACING
-    private var mRtl = DEFAULT_RTL
+    private var mHGravity = DEFAULT_GRAVITY
     var maxRows = DEFAULT_MAX_ROWS
         private set
     private var mIsExpanded = false
@@ -38,6 +38,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
         }
 
     private val mHorizontalSpacingForRow = ArrayList<Float>()
+    private val mWidthForRow = ArrayList<Int>()
     private val mHeightForRow = ArrayList<Int>()
     private val mChildNumForRow = ArrayList<Int>()
     private var mDisplayChildCount: Int = 0
@@ -68,7 +69,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
 
             maxRows = a.getInt(R.styleable.ExpandableFlowLayout_maxRows, DEFAULT_MAX_ROWS)
             isSupportExpanded = a.getBoolean(R.styleable.ExpandableFlowLayout_supportExpand, true)
-            mRtl = a.getBoolean(R.styleable.ExpandableFlowLayout_rtl, DEFAULT_RTL)
+            mHGravity = a.getInteger(R.styleable.ExpandableFlowLayout_hGravity, DEFAULT_GRAVITY)
         } finally {
             a.recycle()
         }
@@ -86,6 +87,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
 
         mHorizontalSpacingForRow.clear()
         mChildNumForRow.clear()
+        mWidthForRow.clear()
         mHeightForRow.clear()
         mDisplayChildCount = 0
 
@@ -125,8 +127,12 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
             val childHeight = child.measuredHeight + verticalMargin
             if (allowFlow && rowWidth + childWidth > rowSize) { // Need flow to next row
                 // Save parameters for current row
-                mHorizontalSpacingForRow.add(getSpacingForRow(childSpacing, rowSize, rowWidth, childNumInRow))
+                val exactSpacingForRow = getSpacingForRow(childSpacing, rowSize, rowWidth - tmpSpacing.toInt(), childNumInRow)
+                val exactRowWidth = rowWidth - tmpSpacing.toInt() * childNumInRow + exactSpacingForRow *
+                        (childNumInRow -1)
+                mHorizontalSpacingForRow.add(exactSpacingForRow)
                 mChildNumForRow.add(childNumInRow)
+                mWidthForRow.add(exactRowWidth.toInt())
                 mHeightForRow.add(maxChildHeightInRow)
                 if (mHorizontalSpacingForRow.size <= maxRows || mIsExpanded) {
                     measuredHeight += maxChildHeightInRow
@@ -146,27 +152,26 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
         }
 
         // Measure remaining child views in the last row
-        if (mChildSpacingForLastRow == SPACING_ALIGN) {
+        val exactSpacingForRow = if (mChildSpacingForLastRow == SPACING_ALIGN) {
             // For SPACING_ALIGN, use the same spacing from the row above if there is more than one
             // row.
             if (mHorizontalSpacingForRow.size >= 1) {
-                mHorizontalSpacingForRow.add(
-                        mHorizontalSpacingForRow[mHorizontalSpacingForRow.size - 1])
+                mHorizontalSpacingForRow[mHorizontalSpacingForRow.size - 1]
             } else {
-                mHorizontalSpacingForRow.add(
-                        getSpacingForRow(childSpacing, rowSize, rowWidth, childNumInRow))
+                getSpacingForRow(childSpacing, rowSize, rowWidth, childNumInRow)
             }
         } else if (mChildSpacingForLastRow != SPACING_UNDEFINED) {
             // For SPACING_AUTO and specific DP values, apply them to the spacing strategy.
-            mHorizontalSpacingForRow.add(
-                    getSpacingForRow(mChildSpacingForLastRow, rowSize, rowWidth, childNumInRow))
+            getSpacingForRow(mChildSpacingForLastRow, rowSize, rowWidth, childNumInRow)
         } else {
             // For SPACING_UNDEFINED, apply childSpacing to the spacing strategy for the last row.
-            mHorizontalSpacingForRow.add(
-                    getSpacingForRow(childSpacing, rowSize, rowWidth, childNumInRow))
+            getSpacingForRow(childSpacing, rowSize, rowWidth, childNumInRow)
         }
-
+        val exactRowWidth = rowWidth - tmpSpacing.toInt() * childNumInRow + exactSpacingForRow *
+                (childNumInRow -1)
+        mHorizontalSpacingForRow.add(exactSpacingForRow)
         mChildNumForRow.add(childNumInRow)
+        mWidthForRow.add(exactRowWidth.toInt())
         mHeightForRow.add(maxChildHeightInRow)
         if (mHorizontalSpacingForRow.size <= maxRows || mIsExpanded) {
             measuredHeight += maxChildHeightInRow
@@ -228,19 +233,28 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
         val paddingLeft = paddingLeft
         val paddingRight = paddingRight
         val paddingTop = paddingTop
-        var x = if (mRtl) width - paddingRight else paddingLeft
-        var y = paddingTop
 
         var rowCount = min(maxRows, mChildNumForRow.size)
         var childIdx = 0
         if (mIsExpanded) {
             rowCount = mChildNumForRow.size
         }
+        var y = paddingTop
         for (row in 0..rowCount - 1) {
             val childNum = mChildNumForRow[row]
+            val rowWidth = mWidthForRow[row]
             val rowHeight = mHeightForRow[row]
             val spacing = mHorizontalSpacingForRow[row]
+            val rowSize = measuredWidth - paddingLeft - paddingRight
             var i = 0
+            var x: Int= when (mHGravity){
+                GRAVITY_LEFT -> paddingLeft
+                GRAVITY_CENTER -> {
+                    paddingLeft + (rowSize - rowWidth) / 2
+                }
+                GRAVITY_RIGHT -> width - paddingRight
+                else -> paddingLeft
+            }
             while (i < childNum && childIdx < childCount) {
                 val child = getChildAt(childIdx++)
                 if (child.visibility == View.GONE) {
@@ -262,17 +276,24 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
 
                 val childWidth = child.measuredWidth
                 val childHeight = child.measuredHeight
-                if (mRtl) {
-                    child.layout(x - marginRight - childWidth, y + marginTop,
-                            x - marginRight, y + marginTop + childHeight)
-                    x -= (childWidth.toFloat() + spacing + marginLeft.toFloat() + marginRight.toFloat()).toInt()
-                } else {
-                    child.layout(x + marginLeft, y + marginTop,
-                            x + marginLeft + childWidth, y + marginTop + childHeight)
-                    x += (childWidth.toFloat() + spacing + marginLeft.toFloat() + marginRight.toFloat()).toInt()
+                when (mHGravity) {
+                    GRAVITY_LEFT -> {
+                        child.layout(x + marginLeft, y + marginTop,
+                                x + marginLeft + childWidth, y + marginTop + childHeight)
+                        x += (childWidth.toFloat() + spacing + marginLeft.toFloat() + marginRight.toFloat()).toInt()
+                    }
+                    GRAVITY_CENTER -> {
+                        child.layout(x + marginLeft, y + marginTop,
+                                x + marginLeft + childWidth, y + marginTop + childHeight)
+                        x += (childWidth.toFloat() + spacing + marginLeft.toFloat() + marginRight.toFloat()).toInt()
+                    }
+                    GRAVITY_RIGHT -> {
+                        child.layout(x - marginRight - childWidth, y + marginTop,
+                                x - marginRight, y + marginTop + childHeight)
+                        x -= (childWidth.toFloat() + spacing + marginLeft.toFloat() + marginRight.toFloat()).toInt()
+                    }
                 }
             }
-            x = if (mRtl) width - paddingRight else paddingLeft
             y += (rowHeight + mAdjustedRowSpacing).toInt()
         }
     }
@@ -501,13 +522,17 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
          */
         val SPACING_ALIGN = -65537
 
+        private val GRAVITY_LEFT = 0
+        private val GRAVITY_RIGHT = 4
+        private val GRAVITY_CENTER = 8
+
         private val SPACING_UNDEFINED = -65538
 
         private val DEFAULT_FLOW = true
         private val DEFAULT_CHILD_SPACING = 0
         private val DEFAULT_CHILD_SPACING_FOR_LAST_ROW = SPACING_UNDEFINED
         private val DEFAULT_ROW_SPACING = 0f
-        private val DEFAULT_RTL = false
+        private val DEFAULT_GRAVITY = GRAVITY_LEFT
         private val DEFAULT_MAX_ROWS = Integer.MAX_VALUE
     }
 }
