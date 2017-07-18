@@ -37,6 +37,8 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
             invalidate()
         }
 
+    var listener: OnExpandableListener? = null
+
     private val mHorizontalSpacingForRow = ArrayList<Float>()
     private val mWidthForRow = ArrayList<Int>()
     private val mHeightForRow = ArrayList<Int>()
@@ -376,6 +378,7 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
 
     private fun performExpandClick() {
         mIsExpanded = !mIsExpanded
+        listener?.onExpandViewClick(mIsExpanded)
         requestLayout()
         invalidate()
     }
@@ -535,4 +538,8 @@ class ExpandableFlowLayout @JvmOverloads constructor(context: Context, attrs: At
         private val DEFAULT_GRAVITY = GRAVITY_LEFT
         private val DEFAULT_MAX_ROWS = Integer.MAX_VALUE
     }
+}
+
+interface OnExpandableListener{
+    fun onExpandViewClick(isExpand: Boolean)
 }
